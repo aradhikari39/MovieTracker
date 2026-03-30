@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getTrendingMovies, searchMovies } from '../movieSearchApi.js';
 
 export default function SearchPage() {
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState('');
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +74,7 @@ export default function SearchPage() {
         {movies.map((movie) => (
           <button
             key={movie.externalMovieId}
+            onClick={() => navigate(`/movies/${movie.externalMovieId}`)}
             style={{
               textAlign: 'left',
               padding: '16px',
@@ -83,8 +86,9 @@ export default function SearchPage() {
             }}
           >
             <h3>{movie.title}</h3>
-            <p>{movie.releaseYear}</p>
+            <p>{movie.releaseYear ?? 'Unknown year'}</p>
             <p>{movie.description}</p>
+            <p>TMDB Rating: {movie.voteAverage ?? 'N/A'}</p>
           </button>
         ))}
       </div>
