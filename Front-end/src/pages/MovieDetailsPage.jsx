@@ -14,6 +14,7 @@ import {
   getWatchlists,
   removeMovieFromWatchlist,
 } from '../watchlistApi.js';
+import '../css/MovieDetailsPage.css';
 
 function getPosterUrl(posterPath) {
   if (!posterPath) return null;
@@ -246,7 +247,7 @@ export default function MovieDetailsPage() {
 
   if (isLoading || pageLoading) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="movie-details__loading">
         <h1>Loading movie...</h1>
       </div>
     );
@@ -254,7 +255,7 @@ export default function MovieDetailsPage() {
 
   if (error && !movie) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="movie-details__error">
         <h1>Movie Details</h1>
         <p>{error}</p>
       </div>
@@ -263,7 +264,7 @@ export default function MovieDetailsPage() {
 
   if (!movie) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="movie-details__error">
         <h1>Movie Details</h1>
         <p>Movie not found.</p>
       </div>
@@ -273,88 +274,46 @@ export default function MovieDetailsPage() {
   const activeStarCount = hoveredRating || Number(rating) || 0;
 
   return (
-    <div className="page-shell" style={{ maxWidth: '1100px' }}>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '300px 1fr',
-          gap: '28px',
-          alignItems: 'start',
-        }}
-      >
-        <div>
+    <div className="page-shell movie-details">
+      <div className="movie-details__layout">
+        <div className="movie-details__poster-wrap">
           {posterUrl ? (
-            <img
-              src={posterUrl}
-              alt={movie.title}
-              style={{
-                width: '100%',
-                borderRadius: '18px',
-                border: '1px solid #333',
-              }}
-            />
+            <img src={posterUrl} alt={movie.title} className="movie-details__poster" />
           ) : (
-            <div
-              style={{
-                height: '450px',
-                borderRadius: '18px',
-                border: '1px solid #333',
-                background: '#111',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#777',
-              }}
-            >
-              No poster available
-            </div>
+            <div className="movie-details__poster-fallback">No poster available</div>
           )}
         </div>
 
-        <div>
-          <h1>{movie.title}</h1>
-          <p>{movie.release_date ? movie.release_date.slice(0, 4) : 'Unknown year'}</p>
-          <p>{movie.overview || 'No description available.'}</p>
-          <p>TMDB Rating: {movie.vote_average ?? 'N/A'}</p>
+        <div className="movie-details__meta">
+          <h1 className="page-title movie-details__headline">{movie.title}</h1>
+          <p className="movie-details__year">
+            {movie.release_date ? movie.release_date.slice(0, 4) : 'Unknown year'}
+          </p>
+          <p className="movie-details__overview">{movie.overview || 'No description available.'}</p>
+          <p className="movie-details__tmdb">TMDB Rating: {movie.vote_average ?? 'N/A'}</p>
 
-          {error && <p>{error}</p>}
-          {message && <p>{message}</p>}
+          {(error || message) && (
+            <div className="movie-details__feedback">
+              {error && <p>{error}</p>}
+              {message && <p>{message}</p>}
+            </div>
+          )}
 
           {!user ? (
             <p>Please log in to use private tracking features.</p>
           ) : (
             <>
-              <div style={{ marginTop: '28px', display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                <button
-                  onClick={handleCycleStatus}
-                  style={{
-                    padding: '14px 18px',
-                    borderRadius: '14px',
-                    cursor: 'pointer',
-                    color: 'white',
-                    ...statusStyle,
-                  }}
-                >
+              <div className="movie-details__controls">
+                <button onClick={handleCycleStatus} style={statusStyle} className="movie-details__status">
                   {statusStyle.label}
                 </button>
 
-                <div
-                  style={{
-                    padding: '14px 18px',
-                    borderRadius: '14px',
-                    border: '1px solid #444',
-                    background: '#1b1b1b',
-                    color: 'white',
-                  }}
-                >
-                  <div style={{ marginBottom: '8px' }}>
+                <div className="movie-details__chip movie-details__rating-box">
+                  <div className="movie-details__rating-label">
                     {rating ? `My Rating: ${rating}/10` : 'Not Rated'}
                   </div>
 
-                  <div
-                    style={{ display: 'flex', gap: '4px' }}
-                    onMouseLeave={() => setHoveredRating(0)}
-                  >
+                  <div className="movie-details__stars" onMouseLeave={() => setHoveredRating(0)}>
                     {Array.from({ length: 10 }, (_, index) => {
                       const starValue = index + 1;
                       const active = starValue <= activeStarCount;
@@ -364,14 +323,7 @@ export default function MovieDetailsPage() {
                           key={starValue}
                           onMouseEnter={() => setHoveredRating(starValue)}
                           onClick={() => handleSetRating(starValue)}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            color: active ? '#facc15' : '#555',
-                            fontSize: '20px',
-                            padding: 0,
-                          }}
+                          className={`movie-details__star ${active ? 'movie-details__star--active' : ''}`}
                         >
                           ★
                         </button>
@@ -382,83 +334,41 @@ export default function MovieDetailsPage() {
 
                 <button
                   onClick={() => setShowCommentEditor((current) => !current)}
-                  style={{
-                    padding: '14px 18px',
-                    borderRadius: '14px',
-                    border: '1px solid #444',
-                    background: '#1b1b1b',
-                    color: 'white',
-                    cursor: 'pointer',
-                  }}
+                  className={`movie-details__chip ${comment ? 'movie-details__chip--active' : ''}`}
                 >
-                  {comment ? 'My Note' : 'My Note'}
+                  My Note
                 </button>
 
                 <button
                   onClick={() => setShowWatchlistPanel((current) => !current)}
-                  style={{
-                    padding: '14px 18px',
-                    borderRadius: '14px',
-                    border: '1px solid #444',
-                    background: '#1b1b1b',
-                    color: 'white',
-                    cursor: 'pointer',
-                    fontWeight: watchlists.length > 0 ? 'bold' : 'normal',
-                  }}
+                  className={`movie-details__chip ${watchlists.length > 0 ? 'movie-details__chip--active' : ''}`}
                 >
                   Save to Watchlist
                 </button>
               </div>
 
-              <div
-                style={{
-                  marginTop: '20px',
-                  padding: '18px',
-                  border: '1px solid #333',
-                  borderRadius: '14px',
-                  background: '#161616',
-                }}
-              >
-                <h3>My Note</h3>
-                <p>{comment || 'No comment written yet.'}</p>
+              <div className="soft-panel movie-details__panel">
+                <h3 className="movie-details__panel-title">My Note</h3>
+                <p className="movie-details__comment">{comment || 'No comment written yet.'}</p>
 
                 {showCommentEditor && (
-                  <div style={{ marginTop: '14px' }}>
+                  <div className="movie-details__comment-editor">
                     <textarea
                       rows="5"
-                      cols="60"
                       placeholder="Write your private comment here..."
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                     />
-                    <br />
-                    <button onClick={handleSaveComment} style={{ marginTop: '12px' }}>
-                      Save Comment
-                    </button>
+                    <button onClick={handleSaveComment}>Save Comment</button>
                   </div>
                 )}
               </div>
 
               {showWatchlistPanel && (
-                <div
-                  style={{
-                    marginTop: '20px',
-                    padding: '18px',
-                    border: '1px solid #333',
-                    borderRadius: '14px',
-                    background: '#161616',
-                  }}
-                >
-                  <h3>Save to Watchlist</h3>
+                <div className="soft-panel movie-details__panel">
+                  <h3 className="movie-details__panel-title">Save to Watchlist</h3>
 
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: '10px',
-                      flexWrap: 'wrap',
-                      alignItems: 'center',
-                    }}
-                  >
+                  <div className="movie-details__watchlists">
                     {allWatchlists.map((watchlist) => {
                       const active = selectedWatchlistIds.has(watchlist.id);
 
@@ -466,48 +376,21 @@ export default function MovieDetailsPage() {
                         <button
                           key={watchlist.id}
                           onClick={() => handleToggleWatchlist(watchlist.id)}
-                          style={{
-                            padding: '10px 14px',
-                            borderRadius: '12px',
-                    border: active ? '1px solid #22c55e' : '1px solid var(--line)',
-                    background: active ? '#123b23' : 'var(--bg-card)',
-                            color: 'white',
-                            fontWeight: active ? 'bold' : 'normal',
-                            cursor: 'pointer',
-                          }}
+                          className={`movie-details__watchlist-pill ${active ? 'movie-details__watchlist-pill--active' : ''}`}
                         >
                           {watchlist.name}
                         </button>
                       );
                     })}
 
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
+                    <div className="movie-details__watchlist-create">
                       <input
                         type="text"
                         placeholder="New watchlist"
                         value={newWatchlistName}
                         onChange={(e) => setNewWatchlistName(e.target.value)}
-                        style={{ padding: '10px 12px' }}
                       />
-                      <button
-                        onClick={handleCreateWatchlist}
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '12px',
-                          border: '1px solid #444',
-                          background: '#1b1b1b',
-                          color: 'white',
-                          fontSize: '20px',
-                          cursor: 'pointer',
-                        }}
-                      >
+                      <button onClick={handleCreateWatchlist} className="movie-details__watchlist-add">
                         +
                       </button>
                     </div>

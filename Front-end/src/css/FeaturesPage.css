@@ -1,0 +1,22 @@
+.features-page__title {
+  font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.features-page__grid {
+  margin-top: 24px;
+}
+
+.features-page__card {
+  min-height: 160px;
+  padding: 24px;
+  text-align: left;
+}
+
+.features-page__card h2 {
+  margin-bottom: 12px;
+}
+
+.features-page__card p {
+  margin: 0;
+}
+

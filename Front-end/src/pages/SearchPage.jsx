@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTrendingMovies, searchMovies } from '../movieSearchApi.js';
+import '../css/SearchPage.css';
 
 function getPosterUrl(posterPath) {
   if (!posterPath) return null;
@@ -50,32 +51,31 @@ export default function SearchPage() {
 
   return (
     <div className="page-shell">
-      <div style={{ maxWidth: '900px', marginBottom: '30px' }}>
-        <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)', marginBottom: '12px' }}>Search Movies</h1>
-        <p style={{ marginBottom: '20px' }}>
-          Search for any movie and open its details page to rate it, comment on it,
-          and add it to your watchlists.
-        </p>
+      <div className="search-page__intro">
+        <p className="search-page__eyebrow">Explore and collect your movies</p>
+        <div className="search-page__intro-row">
+          <div>
+            <h1 className="page-title search-page__title">Search Movies</h1>
+            <p className="search-page__description">
+              
+            </p>
+          </div>
+          <p className="search-page__hint"></p>
+        </div>
 
         <input
           type="text"
           placeholder="Search any movie..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-            style={{ maxWidth: '700px', fontSize: '17px' }}
-          />
+          className="search-page__input"
+        />
       </div>
 
       {error && <p>{error}</p>}
       {loading && <p>Loading movies...</p>}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '18px',
-        }}
-      >
+      <div className="search-page__grid">
         {movies.map((movie) => {
           const posterUrl = getPosterUrl(movie.posterPath);
 
@@ -83,60 +83,31 @@ export default function SearchPage() {
             <button
               key={movie.externalMovieId}
               onClick={() => navigate(`/movies/${movie.externalMovieId}`)}
-              style={{
-                textAlign: 'left',
-                padding: 0,
-                overflow: 'hidden',
-                cursor: 'pointer',
-              }}
-              className="movie-card"
+              className="movie-card search-page__card"
             >
-              <div
-                style={{
-                  height: '320px',
-                  background: '#111',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
+              <div className="search-page__poster">
                 {posterUrl ? (
-                  <img
-                    src={posterUrl}
-                    alt={movie.title}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
+                  <img src={posterUrl} alt={movie.title} />
                 ) : (
-                  <div style={{ color: '#777', padding: '12px', textAlign: 'center' }}>
-                    No poster available
-                  </div>
+                  <div className="search-page__poster-fallback">No poster available</div>
                 )}
+                <div className="search-page__poster-overlay" />
               </div>
 
-              <div style={{ padding: '16px' }}>
-                <h3 style={{ marginTop: 0, marginBottom: '10px' }}>{movie.title}</h3>
-                <p style={{ margin: '0 0 8px 0', color: '#bbb' }}>
-                  {movie.releaseYear ?? 'Unknown year'}
-                </p>
-                <p
-                  style={{
-                    margin: '0 0 10px 0',
-                    color: '#ddd',
-                    fontSize: '14px',
-                    lineHeight: 1.4,
-                  }}
-                >
+              <div className="search-page__card-body">
+                <div className="search-page__card-meta">
+                  <p className="search-page__year">{movie.releaseYear ?? 'Unknown year'}</p>
+                  <p className="search-page__rating">
+                    TMDB {movie.voteAverage ?? 'N/A'}
+                  </p>
+                </div>
+                <h3 className="search-page__card-title">{movie.title}</h3>
+                <p className="search-page__overview">
                   {movie.description.length > 110
                     ? `${movie.description.slice(0, 110)}...`
                     : movie.description}
                 </p>
-                <p style={{ margin: 0, color: '#facc15', fontWeight: 'bold' }}>
-                  TMDB Rating: {movie.voteAverage ?? 'N/A'}
-                </p>
+                <span className="search-page__cta">Open details</span>
               </div>
             </button>
           );

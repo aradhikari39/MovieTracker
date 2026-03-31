@@ -3,6 +3,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase.js';
 import { syncUser } from '../api.js';
+import '../css/CreateAccountPage.css';
+
+function getCreateAccountErrorMessage(error) {
+  if (error?.code === 'auth/email-already-in-use') {
+    return 'An account with this email already exists';
+  }
+
+  if (error?.code === 'auth/invalid-email') {
+    return 'Please enter a valid email address';
+  }
+
+  if (error?.code === 'auth/weak-password') {
+    return 'Password should be at least 6 characters';
+  }
+
+  return 'Unable to create your account right now. Please try again.';
+}
 
 export default function CreateAccountPage() {
   const [email, setEmail] = useState('');
@@ -27,46 +44,44 @@ export default function CreateAccountPage() {
       await syncUser(token);
       navigate('/', { replace: true });
     } catch (e) {
-      setError(e.message);
+      setError(getCreateAccountErrorMessage(e));
     }
   }
 
   return (
-    <div className="page-shell" style={{ display: 'flex', justifyContent: 'center', paddingTop: '56px' }}>
-      <div className="panel" style={{ width: '100%', maxWidth: '520px', padding: '28px' }}>
-      <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 2.6rem)' }}>Create Account</h1>
+    <div className="page-shell auth-page">
+      <div className="panel auth-page__panel">
+      <p className="auth-page__eyebrow">Start your archive</p>
+      <h1 className="page-title auth-page__title">Create Account</h1>
+      <p className="auth-page__copy">Make your own space for watchlists, ratings, notes, and future features.</p>
 
-      {error && <p>{error}</p>}
+      {error && <p className="auth-page__error">{error}</p>}
 
-      <input
-        placeholder="Your email address"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <div className="auth-page__form">
+        <input
+          placeholder="Your email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <br />
+        <input
+          placeholder="Your password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-      <input
-        placeholder="Your password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <input
+          placeholder="Confirm password"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
 
-      <br />
+        <button className="auth-page__submit" onClick={createAccount}>Create Account</button>
+      </div>
 
-      <input
-        placeholder="Confirm password"
-        type="password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
-
-      <br />
-
-      <button onClick={createAccount}>Create Account</button>
-
-      <p>
+      <p className="auth-page__link">
         <Link to="/login">Already have an account? Log In</Link>
       </p>
       </div>

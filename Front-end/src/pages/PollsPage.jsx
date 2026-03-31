@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import useUser from '../useUser.js';
 import { createPoll, getPolls, voteOnPoll } from '../pollApi.js';
+import '../css/PollsPage.css';
 
 export default function PollsPage() {
   const { user, isLoading } = useUser();
@@ -10,7 +11,15 @@ export default function PollsPage() {
   const [showCreatePoll, setShowCreatePoll] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [toast, setToast] = useState('');
   const [pageLoading, setPageLoading] = useState(true);
+
+  useEffect(() => {
+    if (!toast) return undefined;
+
+    const timeoutId = setTimeout(() => setToast(''), 5000);
+    return () => clearTimeout(timeoutId);
+  }, [toast]);
 
   async function loadPolls() {
     try {
@@ -29,13 +38,11 @@ export default function PollsPage() {
   }, []);
 
   function handleOptionChange(index, value) {
-    setOptions((current) =>
-      current.map((option, i) => (i === index ? value : option))
-    );
+    setOptions((current) => current.map((option, i) => (i === index ? value : option)));
   }
 
   function handleAddOption() {
-    if (options.length >= 4) return;
+    if (options.length >= 5) return;
     setOptions((current) => [...current, '']);
   }
 
@@ -46,7 +53,7 @@ export default function PollsPage() {
 
   async function handleCreatePoll() {
     if (!user) {
-      setError('Please log in to create a poll');
+      setToast('You have to log in to create a poll');
       return;
     }
 
@@ -81,7 +88,7 @@ export default function PollsPage() {
 
   async function handleVote(pollId, pollOptionId) {
     if (!user) {
-      setError('Please log in to vote');
+      setToast('You have to log in to vote');
       return;
     }
 
@@ -100,60 +107,61 @@ export default function PollsPage() {
     }
   }
 
+  function handleToggleCreatePoll() {
+    if (!user) {
+      setToast('You have to log in to create a poll');
+      return;
+    }
+
+    setShowCreatePoll((current) => !current);
+  }
+
   if (isLoading || pageLoading) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="movie-details__loading">
         <h1>Loading polls...</h1>
       </div>
     );
   }
 
   return (
-    <div className="page-shell" style={{ maxWidth: '900px' }}>
-      <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)' }}>User Polls</h1>
+    <div className="page-shell polls-page">
+      <p className="polls-page__eyebrow">Shared picks and debates</p>
+      <div className="polls-page__header">
+        <div>
+          <h1 className="page-title polls-page__title">User Polls</h1>
+          <p className="polls-page__intro">
+            Ranked by total votes so the most active conversations always stay first.
+          </p>
+        </div>
+        <p className="polls-page__note"></p>
+      </div>
 
       {error && <p>{error}</p>}
       {message && <p>{message}</p>}
 
-      <div style={{ marginTop: '30px' }}>
+      <div className="polls-page__list">
         {polls.length === 0 ? (
           <p>No polls yet.</p>
         ) : (
           polls.map((poll, index) => (
-            <div
-              key={poll.id}
-              style={{
-                marginBottom: '20px',
-                padding: '20px',
-              }}
-              className="poll-card"
-            >
-              <h2>
-                #{index + 1} {poll.question}
-              </h2>
-              <p>Created by: {poll.createdBy}</p>
-              <p>Total Votes: {poll.totalVotes}</p>
+            <div key={poll.id} className="poll-card polls-page__card">
+              <div className="polls-page__card-top">
+                <p className="polls-page__rank">Rank {index + 1}</p>
+                <p className="polls-page__total">{poll.totalVotes} votes</p>
+              </div>
+              <h2 className="polls-page__question">{poll.question}</h2>
+              <p className="polls-page__creator">Created by: {poll.createdBy}</p>
 
-              <div style={{ marginTop: '12px' }}>
+              <div className="polls-page__options">
                 {poll.options.map((option) => (
-                  <div
-                    key={option.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '10px 0',
-                      borderTop: '1px solid #333',
-                    }}
-                  >
-                    <div>
-                      <strong>{option.text}</strong>
-                      <div>{option.votes} votes</div>
+                  <div key={option.id} className="polls-page__option">
+                    <div className="polls-page__option-copy">
+                      <strong className="polls-page__option-title">{option.text}</strong>
+                      <div className="polls-page__votes">{option.votes} votes</div>
                     </div>
 
-                    <button onClick={() => handleVote(poll.id, option.id)}>
-                      Vote
-                    </button>
+                    <button onClick={() => handleVote(poll.id, option.id)} className="polls-page__vote-button">Vote</button>
                   </div>
                 ))}
               </div>
@@ -162,62 +170,48 @@ export default function PollsPage() {
         )}
       </div>
 
-      <div style={{ marginTop: '40px' }}>
-        <button onClick={() => setShowCreatePoll((current) => !current)}>
+      <div className="polls-page__create">
+        <button onClick={handleToggleCreatePoll} className="polls-page__create-toggle">
           {showCreatePoll ? 'Close Poll Creator' : 'Create New Poll'}
         </button>
 
         {showCreatePoll && (
-          <div
-            style={{
-              marginTop: '16px',
-              padding: '20px',
-            }}
-            className="poll-card"
-          >
-            <h2>Create a New Poll</h2>
+          <div className="poll-card polls-page__create-panel">
+            <h2 className="polls-page__create-title">Create a New Poll</h2>
+            <p className="polls-page__create-copy">Add a question and at least two options.</p>
 
             <input
               type="text"
               placeholder="Poll question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              style={{ width: '100%', padding: '12px', marginBottom: '12px' }}
+              className="polls-page__question-input"
             />
 
             {options.map((option, index) => (
-              <div
-                key={index}
-                style={{
-                  display: 'flex',
-                  gap: '10px',
-                  alignItems: 'center',
-                  marginBottom: '12px',
-                }}
-              >
+              <div key={index} className="polls-page__option-editor">
                 <input
                   type="text"
                   placeholder={`Option ${index + 1}`}
                   value={option}
                   onChange={(e) => handleOptionChange(index, e.target.value)}
-                  style={{ flex: 1, padding: '12px' }}
                 />
 
                 {options.length > 2 && (
-                  <button onClick={() => handleRemoveOption(index)}>Remove</button>
+                  <button onClick={() => handleRemoveOption(index)} className="polls-page__remove-button">Remove</button>
                 )}
               </div>
             ))}
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-              {options.length < 4 && (
-                <button onClick={handleAddOption}>Add Option</button>
-              )}
+            <div className="polls-page__create-actions">
+              {options.length < 5 && <button onClick={handleAddOption}>Add Option</button>}
               <button onClick={handleCreatePoll}>Create Poll</button>
             </div>
           </div>
         )}
       </div>
+
+      {toast && <div className="app-toast">{toast}</div>}
     </div>
   );
 }

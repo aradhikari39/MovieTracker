@@ -1,0 +1,147 @@
+.search-page__intro {
+  max-width: 900px;
+  margin-bottom: 34px;
+}
+
+.search-page__eyebrow {
+  margin: 0 0 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.76rem;
+  color: var(--gold-strong);
+}
+
+.search-page__intro-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  align-items: end;
+}
+
+.search-page__title {
+  font-size: clamp(2rem, 3vw, 3rem);
+  margin-bottom: 12px;
+}
+
+.search-page__description {
+  margin-bottom: 20px;
+  max-width: 56ch;
+}
+
+.search-page__hint {
+  max-width: 250px;
+  margin: 0 0 20px;
+  text-align: right;
+  font-size: 0.95rem;
+  color: rgba(246, 239, 228, 0.72);
+}
+
+.search-page__input {
+  max-width: 700px;
+  font-size: 1.05rem;
+}
+
+.search-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.search-page__card {
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  background:
+    linear-gradient(180deg, rgba(38, 28, 33, 0.95), rgba(18, 15, 18, 0.94));
+}
+
+.search-page__poster {
+  height: 320px;
+  background: rgba(13, 12, 15, 0.82);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-page__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.search-page__poster-fallback {
+  color: var(--muted);
+  text-align: center;
+  padding: 16px;
+}
+
+.search-page__poster-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10, 9, 13, 0.02), rgba(10, 9, 13, 0.56)),
+    linear-gradient(180deg, transparent 55%, rgba(12, 10, 14, 0.82) 100%);
+}
+
+.search-page__card-body {
+  padding: 18px;
+}
+
+.search-page__card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.search-page__card-title {
+  margin-bottom: 12px;
+  font-size: 1.24rem;
+  line-height: 1.2;
+  color: #fff4e1;
+}
+
+.search-page__year {
+  margin: 0;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(246, 239, 228, 0.66);
+}
+
+.search-page__overview {
+  margin: 0 0 14px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.search-page__rating {
+  margin: 0;
+  color: var(--gold-strong);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.search-page__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #f0d29f;
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .search-page__intro-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-page__hint {
+    max-width: 100%;
+    text-align: left;
+  }
+}

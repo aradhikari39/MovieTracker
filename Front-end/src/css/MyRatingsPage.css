@@ -1,0 +1,45 @@
+.ratings-page__title {
+  font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.ratings-page__table-wrap {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.ratings-page__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ratings-page__table thead tr {
+  background: rgba(31, 25, 31, 0.96);
+}
+
+.ratings-page__table th,
+.ratings-page__table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.ratings-page__table tbody tr {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ratings-page__movie-link {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #9fc9d3;
+  font-weight: 600;
+}
+
+.ratings-page__movie-link:hover,
+.ratings-page__movie-link:focus-visible {
+  transform: none;
+  border-color: transparent;
+  color: #cde7ef;
+}
+

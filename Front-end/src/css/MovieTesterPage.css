@@ -1,0 +1,23 @@
+.tester-page {
+  max-width: 720px;
+}
+
+.tester-page__panel {
+  padding: 24px;
+}
+
+.tester-page__title {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  margin-bottom: 12px;
+}
+
+.tester-page__grid {
+  display: grid;
+  gap: 14px;
+}
+
+.tester-page__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}

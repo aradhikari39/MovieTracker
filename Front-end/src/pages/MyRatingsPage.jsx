@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 import useUser from '../useUser.js';
 import { getRatings } from '../movieApi.js';
 import { useNavigate } from 'react-router-dom';
-
-
-const cellStyle = {
-  textAlign: 'left',
-  padding: '12px',
-};
+import '../css/MyRatingsPage.css';
 
 export default function MyRatingsPage() {
   const { user, isLoading } = useUser();
@@ -42,7 +37,7 @@ export default function MyRatingsPage() {
 
   if (isLoading || pageLoading) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="movie-details__loading">
         <h1>Loading ratings...</h1>
       </div>
     );
@@ -50,7 +45,7 @@ export default function MyRatingsPage() {
 
   if (!user) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="page-shell">
         <h1>My Ratings</h1>
         <p>Please log in first.</p>
       </div>
@@ -59,58 +54,42 @@ export default function MyRatingsPage() {
 
   return (
     <div className="page-shell">
-      <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)' }}>My Ratings</h1>
+      <h1 className="page-title ratings-page__title">My Ratings</h1>
 
       {error && <p>{error}</p>}
 
       {ratings.length === 0 ? (
         <p>No ratings yet.</p>
       ) : (
-        <div style={{ overflowX: 'auto', marginTop: '20px' }}>
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-            }}
-            className="ratings-table"
-          >
+        <div className="ratings-page__table-wrap">
+          <table className="ratings-table ratings-page__table">
             <thead>
-              <tr style={{ background: '#222' }}>
-                <th style={cellStyle}>Order</th>
-                <th style={cellStyle}>Movie</th>
-                <th style={cellStyle}>Release Year</th>
-                <th style={cellStyle}>TMDB Rating</th>
-                <th style={cellStyle}>My Rating</th>
-                <th style={cellStyle}>First Rated</th>
+              <tr>
+                <th>Order</th>
+                <th>Movie</th>
+                <th>Release Year</th>
+                <th>TMDB Rating</th>
+                <th>My Rating</th>
+                <th>First Rated</th>
               </tr>
             </thead>
             <tbody>
               {ratings.map((item, index) => (
-                <tr key={item.id} style={{ borderTop: '1px solid #333' }}>
-                  <td style={cellStyle}>{index + 1}</td>
-                  <td style={cellStyle}>
+                <tr key={item.id}>
+                  <td>{index + 1}</td>
+                  <td>
                     <button
                       onClick={() => navigate(`/movies/${item.movie.externalMovieId}`)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#7dd3fc',
-                        cursor: 'pointer',
-                        padding: 0,
-                        textAlign: 'left',
-                        font: 'inherit',
-                      }}
+                      className="ratings-page__movie-link"
                     >
                       {item.movie.title}
                     </button>
                   </td>
 
-                  <td style={cellStyle}>{item.movie.releaseYear ?? 'Unknown'}</td>
-                  <td style={cellStyle}>{item.movie.apiRating ?? 'N/A'}</td>
-                  <td style={cellStyle}>{item.score}/10</td>
-                  <td style={cellStyle}>
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </td>
+                  <td>{item.movie.releaseYear ?? 'Unknown'}</td>
+                  <td>{item.movie.apiRating ?? 'N/A'}</td>
+                  <td>{item.score}/10</td>
+                  <td>{new Date(item.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUser from '../useUser.js';
 import { createWatchlist, getWatchlists } from '../watchlistApi.js';
+import '../css/MyWatchlistsPage.css';
 
 function getBorderColor(borderStatus) {
   if (borderStatus === 'GREEN') return '#22c55e';
@@ -74,7 +75,7 @@ export default function MyWatchlistsPage() {
 
   if (isLoading || pageLoading) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="movie-details__loading">
         <h1>Loading watchlists...</h1>
       </div>
     );
@@ -82,7 +83,7 @@ export default function MyWatchlistsPage() {
 
   if (!user) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="page-shell">
         <h1>My Watchlists</h1>
         <p>Please log in first.</p>
       </div>
@@ -91,61 +92,35 @@ export default function MyWatchlistsPage() {
 
   return (
     <div className="page-shell">
-      <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)', marginBottom: '8px' }}>My Watchlists</h1>
-      <p style={{ marginBottom: '20px', maxWidth: '720px' }}>
-        Your shelves for every mood, marathon, and obsession. Click any movie to jump back into its details.
+      <h1 className="page-title watchlists-page__title">My Watchlists</h1>
+      <p className="watchlists-page__intro">
+        
       </p>
 
       {error && <p>{error}</p>}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-          gap: '20px',
-          alignItems: 'stretch',
-          marginTop: '24px',
-        }}
-      >
+      <div className="watchlists-page__grid">
         {watchlists.map((watchlist) => (
           <div
             key={watchlist.id}
-            style={{
-              border: `4px solid ${getBorderColor(watchlist.borderStatus)}`,
-              padding: '18px',
-              minHeight: '360px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-            className="watchlist-card"
+            style={{ border: `4px solid ${getBorderColor(watchlist.borderStatus)}` }}
+            className="watchlist-card watchlists-page__card"
           >
             <div>
-              <h2 style={{ marginTop: 0 }}>{watchlist.name}</h2>
+              <h2 className="watchlists-page__card-title">{watchlist.name}</h2>
 
               {watchlist.movies.length === 0 ? (
-                <p>No movies added yet.</p>
+                <p className="watchlists-page__empty">No movies added yet.</p>
               ) : (
                 <div>
                   {watchlist.movies.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => navigate(`/movies/${item.movie.externalMovieId}`)}
-                      style={{
-                        width: '100%',
-                        padding: '12px 0',
-                        borderBottom: '1px dashed rgba(29, 36, 48, 0.12)',
-                        background: 'transparent',
-                        color: '#1d2430',
-                        borderLeft: 'none',
-                        borderRight: 'none',
-                        borderTop: 'none',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                      }}
-                      >
-                        <strong style={{ fontSize: '1rem' }}>{item.movie.title}</strong>
-                      <div style={{ fontSize: '14px', color: '#606774' }}>
+                      className="watchlists-page__movie"
+                    >
+                      <strong className="watchlists-page__movie-title">{item.movie.title}</strong>
+                      <div className="watchlists-page__movie-year">
                         {item.movie.releaseYear ?? 'Unknown year'}
                       </div>
                     </button>
@@ -154,46 +129,27 @@ export default function MyWatchlistsPage() {
               )}
             </div>
 
-            <div style={{ marginTop: '20px', textAlign: 'right' }}>
-              <p style={{ margin: 0 }}>
+            <div className="watchlists-page__stats">
+              <p>
                 {watchlist.completedMovies}/{watchlist.totalMovies} movies completed
               </p>
-              <p style={{ margin: 0 }}>{watchlist.progressPercent}% progress</p>
+              <p>{watchlist.progressPercent}% progress</p>
             </div>
           </div>
         ))}
 
         {!showCreateBox ? (
-          <button
-            onClick={() => setShowCreateBox(true)}
-            style={{ minHeight: '360px', fontSize: '64px', cursor: 'pointer' }}
-            className="watchlist-card"
-          >
-            <span style={{ color: '#194e57' }}>+</span>
+          <button onClick={() => setShowCreateBox(true)} className="watchlist-card watchlists-page__add-card">
+            <span>+</span>
           </button>
         ) : (
-          <div
-            style={{
-              padding: '18px',
-              minHeight: '360px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}
-            className="watchlist-card"
-          >
-            <h2 style={{ textAlign: 'center' }}>Create Watchlist</h2>
+          <div className="watchlist-card watchlists-page__create-card">
+            <h2>Create Watchlist</h2>
 
             <input
               placeholder="New watchlist name"
               value={newWatchlistName}
               onChange={(e) => setNewWatchlistName(e.target.value)}
-              style={{
-                padding: '12px',
-                marginTop: '16px',
-                marginBottom: '12px',
-                fontSize: '16px',
-              }}
             />
 
             <button onClick={handleCreateWatchlist}>Create</button>
@@ -202,7 +158,6 @@ export default function MyWatchlistsPage() {
                 setShowCreateBox(false);
                 setNewWatchlistName('');
               }}
-              style={{ marginTop: '10px' }}
             >
               Cancel
             </button>

@@ -1,0 +1,224 @@
+.movie-details {
+  max-width: 1100px;
+}
+
+.movie-details__loading,
+.movie-details__error {
+  padding: 24px;
+}
+
+.movie-details__layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.movie-details__poster-wrap {
+  position: sticky;
+  top: 96px;
+}
+
+.movie-details__poster,
+.movie-details__poster-fallback {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.movie-details__poster {
+  display: block;
+}
+
+.movie-details__poster-fallback {
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 9, 13, 0.76);
+  color: var(--muted);
+}
+
+.movie-details__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.movie-details__headline {
+  margin-bottom: 0;
+}
+
+.movie-details__year,
+.movie-details__tmdb {
+  margin: 0;
+  color: var(--muted);
+}
+
+.movie-details__overview {
+  margin: 0;
+  max-width: 70ch;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.movie-details__feedback {
+  margin-top: 10px;
+}
+
+.movie-details__feedback p {
+  margin: 0 0 8px;
+}
+
+.movie-details__controls {
+  margin-top: 28px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.movie-details__status {
+  padding: 14px 18px;
+  border-radius: 14px;
+  color: white;
+  min-width: 150px;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.24);
+}
+
+.movie-details__chip {
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(26, 21, 26, 0.92);
+  color: var(--text);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.movie-details__chip--active {
+  font-weight: 700;
+  border-color: rgba(212, 154, 70, 0.35);
+}
+
+.movie-details__rating-box {
+  min-width: 250px;
+  background:
+    linear-gradient(135deg, rgba(41, 28, 33, 0.96), rgba(26, 20, 29, 0.96));
+}
+
+.movie-details__rating-label {
+  margin-bottom: 8px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.movie-details__stars {
+  display: flex;
+  gap: 4px;
+}
+
+.movie-details__star {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #65584a;
+}
+
+.movie-details__star:hover,
+.movie-details__star:focus-visible {
+  transform: none;
+  border-color: transparent;
+}
+
+.movie-details__star--active {
+  color: var(--gold-strong);
+  text-shadow: 0 0 14px rgba(239, 191, 115, 0.2);
+}
+
+.movie-details__panel {
+  margin-top: 20px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+
+.movie-details__panel-title {
+  margin-bottom: 12px;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #fff3db;
+}
+
+.movie-details__comment {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
+.movie-details__comment-editor {
+  margin-top: 14px;
+}
+
+.movie-details__comment-editor textarea {
+  min-height: 140px;
+}
+
+.movie-details__comment-editor button {
+  margin-top: 12px;
+}
+
+.movie-details__watchlists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.movie-details__watchlist-pill {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(33, 24, 31, 0.94);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.movie-details__watchlist-pill--active {
+  border-color: rgba(79, 139, 114, 0.7);
+  background: rgba(23, 51, 43, 0.94);
+  font-weight: 700;
+}
+
+.movie-details__watchlist-create {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.movie-details__watchlist-create input {
+  min-width: 180px;
+}
+
+.movie-details__watchlist-add {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 12px;
+  font-size: 1.4rem;
+}
+
+@media (max-width: 900px) {
+  .movie-details {
+    max-width: 100%;
+  }
+
+  .movie-details__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .movie-details__poster-wrap {
+    max-width: 320px;
+    position: static;
+  }
+}
