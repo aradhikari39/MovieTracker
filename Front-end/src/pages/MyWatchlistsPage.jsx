@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import useUser from '../useUser.js';
-import { createWatchlist, getWatchlists } from '../watchlistApi.js'
+import { createWatchlist, getWatchlists } from '../watchlistApi.js';
+import { useNavigate } from 'react-router-dom';
+
 
 function getBorderColor(borderStatus) {
   if (borderStatus === 'GREEN') return '#22c55e';
@@ -10,10 +12,12 @@ function getBorderColor(borderStatus) {
 
 export default function MyWatchlistsPage() {
   const { user, isLoading } = useUser();
+  const navigate = useNavigate();
   const [watchlists, setWatchlists] = useState([]);
   const [newWatchlistName, setNewWatchlistName] = useState('');
   const [error, setError] = useState('');
   const [pageLoading, setPageLoading] = useState(true);
+  
 
   useEffect(() => {
     async function loadWatchlists() {
@@ -121,19 +125,29 @@ export default function MyWatchlistsPage() {
               ) : (
                 <div>
                   {watchlist.movies.map((item) => (
-                    <div
+                    <button
                       key={item.id}
+                      onClick={() => navigate(`/movies/${item.movie.externalMovieId}`)}
                       style={{
+                        width: '100%',
                         padding: '10px 0',
                         borderBottom: '1px solid #333',
+                        background: 'transparent',
+                        color: 'white',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        borderTop: 'none',
+                        textAlign: 'left',
+                        cursor: 'pointer',
                       }}
                     >
                       <strong>{item.movie.title}</strong>
                       <div style={{ fontSize: '14px', color: '#bbb' }}>
                         {item.movie.releaseYear ?? 'Unknown year'}
                       </div>
-                    </div>
+                    </button>
                   ))}
+
                 </div>
               )}
             </div>

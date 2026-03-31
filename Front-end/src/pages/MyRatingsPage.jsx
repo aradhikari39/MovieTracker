@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import useUser from '../useUser.js';
 import { getRatings } from '../movieApi.js';
+import { useNavigate } from 'react-router-dom';
+
 
 const cellStyle = {
   textAlign: 'left',
@@ -9,6 +11,8 @@ const cellStyle = {
 
 export default function MyRatingsPage() {
   const { user, isLoading } = useUser();
+  const navigate = useNavigate();
+
   const [ratings, setRatings] = useState([]);
   const [error, setError] = useState('');
   const [pageLoading, setPageLoading] = useState(true);
@@ -85,7 +89,23 @@ export default function MyRatingsPage() {
               {ratings.map((item, index) => (
                 <tr key={item.id} style={{ borderTop: '1px solid #333' }}>
                   <td style={cellStyle}>{index + 1}</td>
-                  <td style={cellStyle}>{item.movie.title}</td>
+                  <td style={cellStyle}>
+                    <button
+                      onClick={() => navigate(`/movies/${item.movie.externalMovieId}`)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#7dd3fc',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textAlign: 'left',
+                        font: 'inherit',
+                      }}
+                    >
+                      {item.movie.title}
+                    </button>
+                  </td>
+
                   <td style={cellStyle}>{item.movie.releaseYear ?? 'Unknown'}</td>
                   <td style={cellStyle}>{item.movie.apiRating ?? 'N/A'}</td>
                   <td style={cellStyle}>{item.score}/10</td>

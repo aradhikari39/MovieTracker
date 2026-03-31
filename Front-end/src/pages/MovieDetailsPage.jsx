@@ -14,6 +14,10 @@ import {
   getWatchlists,
 } from '../watchlistApi.js';
 
+function getPosterUrl(posterPath) {
+  if (!posterPath) return null;
+  return `https://image.tmdb.org/t/p/w500${posterPath}`;
+}
 
 export default function MovieDetailsPage() {
   const { movieId } = useParams();
@@ -189,7 +193,6 @@ export default function MovieDetailsPage() {
         title: movie.title,
         releaseYear: movie.release_date ? Number(movie.release_date.slice(0, 4)) : null,
         apiRating: movie.vote_average ?? null,
-
       });
 
       const personalData = await getMyMovieData(token, movieId);
@@ -231,104 +234,149 @@ export default function MovieDetailsPage() {
     );
   }
 
+  const posterUrl = movie.poster_path ? getPosterUrl(movie.poster_path) : null;
+
   return (
-    <div style={{ padding: '24px', maxWidth: '800px' }}>
-      <h1>{movie.title}</h1>
-      <p>{movie.release_date ? movie.release_date.slice(0, 4) : 'Unknown year'}</p>
-      <p>{movie.overview || 'No description available.'}</p>
-      <p>TMDB Rating: {movie.vote_average ?? 'N/A'}</p>
-
-      {error && <p>{error}</p>}
-      {message && <p>{message}</p>}
-
-      {!user ? (
-        <p>Please log in to save your rating, comment, and watch status.</p>
-      ) : (
-        <>
-          <div style={{ marginTop: '24px' }}>
-            <h2>My Watch Status</h2>
-            <select value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="NOT_WATCHED">Not Watched</option>
-              <option value="WATCHING">Watching</option>
-              <option value="WATCHED">Watched</option>
-            </select>
-            <button onClick={handleSaveStatus} style={{ marginLeft: '12px' }}>
-              Save Status
-            </button>
-          </div>
-
-          <div style={{ marginTop: '24px' }}>
-            <h2>My Rating</h2>
-            <input
-              type="number"
-              min="1"
-              max="10"
-              placeholder="Rate 1 to 10"
-              value={rating}
-              onChange={(e) => setRating(e.target.value)}
+    <div style={{ padding: '24px', maxWidth: '1000px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '280px 1fr',
+          gap: '24px',
+          alignItems: 'start',
+        }}
+      >
+        <div>
+          {posterUrl ? (
+            <img
+              src={posterUrl}
+              alt={movie.title}
+              style={{
+                width: '100%',
+                borderRadius: '16px',
+                border: '1px solid #333',
+              }}
             />
-            <button onClick={handleSaveRating} style={{ marginLeft: '12px' }}>
-              Save Rating
-            </button>
-          </div>
+          ) : (
+            <div
+              style={{
+                height: '420px',
+                borderRadius: '16px',
+                border: '1px solid #333',
+                background: '#111',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#777',
+              }}
+            >
+              No poster available
+            </div>
+          )}
+        </div>
 
-          <div style={{ marginTop: '24px' }}>
-            <h2>My Private Comment</h2>
-            <textarea
-              rows="6"
-              cols="60"
-              placeholder="Write your private comment here..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-            <br />
-            <button onClick={handleSaveComment} style={{ marginTop: '12px' }}>
-              Save Comment
-            </button>
-          </div>
+        <div>
+          <h1>{movie.title}</h1>
+          <p>{movie.release_date ? movie.release_date.slice(0, 4) : 'Unknown year'}</p>
+          <p>{movie.overview || 'No description available.'}</p>
+          <p>TMDB Rating: {movie.vote_average ?? 'N/A'}</p>
 
-          <div style={{ marginTop: '24px' }}>
-            <h2>Already in Watchlists</h2>
-            {watchlists.length === 0 ? (
-              <p>This movie is not in any watchlist yet.</p>
-            ) : (
-              watchlists.map((watchlist) => (
-                <p key={watchlist.id}>{watchlist.name}</p>
-              ))
-            )}
-          </div>
+          {error && <p>{error}</p>}
+          {message && <p>{message}</p>}
 
-          <div style={{ marginTop: '24px' }}>
-            <h2>Add to Existing Watchlist</h2>
-            {allWatchlists.length === 0 ? (
-              <p>No watchlists available yet.</p>
-            ) : (
-              allWatchlists.map((watchlist) => (
-                <button
-                  key={watchlist.id}
-                  onClick={() => handleAddToWatchlist(watchlist.id)}
-                  style={{ marginRight: '10px', marginBottom: '10px' }}
-                >
-                  {watchlist.name}
+          {!user ? (
+            <p>Please log in to save your rating, comment, and watch status.</p>
+          ) : (
+            <>
+              <div style={{ marginTop: '24px' }}>
+                <h2>My Watch Status</h2>
+                <select value={status} onChange={(e) => setStatus(e.target.value)}>
+                  <option value="NOT_WATCHED">Not Watched</option>
+                  <option value="WATCHING">Watching</option>
+                  <option value="WATCHED">Watched</option>
+                </select>
+                <button onClick={handleSaveStatus} style={{ marginLeft: '12px' }}>
+                  Save Status
                 </button>
-              ))
-            )}
-          </div>
+              </div>
 
-          <div style={{ marginTop: '24px' }}>
-            <h2>Create New Watchlist and Add Movie</h2>
-            <input
-              type="text"
-              placeholder="New watchlist name"
-              value={newWatchlistName}
-              onChange={(e) => setNewWatchlistName(e.target.value)}
-            />
-            <button onClick={handleCreateAndAddWatchlist} style={{ marginLeft: '12px' }}>
-              Create and Add
-            </button>
-          </div>
-        </>
-      )}
+              <div style={{ marginTop: '24px' }}>
+                <h2>My Rating</h2>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  placeholder="Rate 1 to 10"
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value)}
+                />
+                <button onClick={handleSaveRating} style={{ marginLeft: '12px' }}>
+                  Save Rating
+                </button>
+              </div>
+
+              <div style={{ marginTop: '24px' }}>
+                <h2>My Private Comment</h2>
+                <textarea
+                  rows="6"
+                  cols="60"
+                  placeholder="Write your private comment here..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+                <br />
+                <button onClick={handleSaveComment} style={{ marginTop: '12px' }}>
+                  Save Comment
+                </button>
+              </div>
+
+              <div style={{ marginTop: '24px' }}>
+                <h2>Already in Watchlists</h2>
+                {watchlists.length === 0 ? (
+                  <p>This movie is not in any watchlist yet.</p>
+                ) : (
+                  watchlists.map((watchlist) => (
+                    <p key={watchlist.id}>{watchlist.name}</p>
+                  ))
+                )}
+              </div>
+
+              <div style={{ marginTop: '24px' }}>
+                <h2>Add to Existing Watchlist</h2>
+                {allWatchlists.length === 0 ? (
+                  <p>No watchlists available yet.</p>
+                ) : (
+                  allWatchlists.map((watchlist) => (
+                    <button
+                      key={watchlist.id}
+                      onClick={() => handleAddToWatchlist(watchlist.id)}
+                      style={{ marginRight: '10px', marginBottom: '10px' }}
+                    >
+                      {watchlist.name}
+                    </button>
+                  ))
+                )}
+              </div>
+
+              <div style={{ marginTop: '24px' }}>
+                <h2>Create New Watchlist and Add Movie</h2>
+                <input
+                  type="text"
+                  placeholder="New watchlist name"
+                  value={newWatchlistName}
+                  onChange={(e) => setNewWatchlistName(e.target.value)}
+                />
+                <button
+                  onClick={handleCreateAndAddWatchlist}
+                  style={{ marginLeft: '12px' }}
+                >
+                  Create and Add
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

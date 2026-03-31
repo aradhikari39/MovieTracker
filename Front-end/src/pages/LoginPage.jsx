@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase.js';
 import { syncUser } from '../api.js';
@@ -10,6 +10,9 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const redirectTo = location.state?.from?.pathname || '/';
 
   async function logIn() {
     try {
@@ -19,14 +22,14 @@ export default function LoginPage() {
       const token = await userCredential.user.getIdToken();
 
       await syncUser(token);
-      navigate('/');
+      navigate(redirectTo, { replace: true });
     } catch (e) {
       setError(e.message);
     }
   }
 
   return (
-    <div>
+    <div style={{ padding: '24px' }}>
       <h1>Log In</h1>
 
       {error && <p>{error}</p>}

@@ -25,14 +25,14 @@ export default function CreateAccountPage() {
       const token = await userCredential.user.getIdToken();
 
       await syncUser(token);
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (e) {
       setError(e.message);
     }
   }
 
   return (
-    <div>
+    <div style={{ padding: '24px' }}>
       <h1>Create Account</h1>
 
       {error && <p>{error}</p>}
