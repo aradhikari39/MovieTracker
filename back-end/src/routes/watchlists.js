@@ -106,7 +106,8 @@ router.post('/', requireAuth, async (req, res) => {
 router.post('/:watchlistId/movies', requireAuth, async (req, res) => {
   try {
     const watchlistId = Number(req.params.watchlistId);
-    const { externalMovieId, title, releaseYear } = req.body;
+    const { externalMovieId, title, releaseYear, apiRating } = req.body;
+
 
     if (!Number.isInteger(watchlistId)) {
       return res.status(400).json({ error: 'Invalid watchlist id' });
@@ -140,11 +141,13 @@ router.post('/:watchlistId/movies', requireAuth, async (req, res) => {
       update: {
         title,
         releaseYear: releaseYear ?? null,
+        apiRating: apiRating ?? null, 
       },
       create: {
         externalMovieId: Number(externalMovieId),
         title,
         releaseYear: releaseYear ?? null,
+        apiRating: apiRating ?? null,
       },
     });
 

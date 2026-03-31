@@ -6,6 +6,8 @@ import watchlistRoutes from './routes/watchlists.js';
 import movieRoutes from './routes/movies.js';
 import ratingRoutes from './routes/ratings.js';
 import tmdbRoutes from './routes/tmdb.js';
+import pollRoutes from './routes/polls.js';
+
 
 export function createServer() {
   const app = express();
@@ -25,6 +27,8 @@ export function createServer() {
   app.use('/api/movies', movieRoutes);
   app.use('/api/ratings', ratingRoutes);
   app.use('/api/tmdb', tmdbRoutes);
+  app.use('/api/polls', pollRoutes);
+
 
   return app;
 }

@@ -22,7 +22,7 @@ router.get('/', requireAuth, async (req, res) => {
     include: {
       movie: true,
     },
-    orderBy: { updatedAt: 'desc' },
+    orderBy: { updatedAt: 'asc' },
   });
 
   res.json(ratings);
@@ -30,7 +30,8 @@ router.get('/', requireAuth, async (req, res) => {
 
 router.put('/:externalMovieId', requireAuth, async (req, res) => {
   const externalMovieId = Number(req.params.externalMovieId);
-  const { score, title, releaseYear } = req.body;
+  const { score, title, releaseYear, apiRating } = req.body;
+
 
   const user = await getCurrentUser(req.user.uid);
   if (!user) {
@@ -46,11 +47,13 @@ router.put('/:externalMovieId', requireAuth, async (req, res) => {
     update: {
       title,
       releaseYear: releaseYear ?? null,
+      apiRating: apiRating ?? null,
     },
     create: {
       externalMovieId,
       title,
       releaseYear: releaseYear ?? null,
+      apiRating: apiRating ?? null,
     },
   });
 
@@ -74,7 +77,8 @@ router.put('/:externalMovieId', requireAuth, async (req, res) => {
 
 router.put('/:externalMovieId/comment', requireAuth, async (req, res) => {
   const externalMovieId = Number(req.params.externalMovieId);
-  const { content, title, releaseYear } = req.body;
+  const { content, title, releaseYear, apiRating } = req.body;
+
 
   const user = await getCurrentUser(req.user.uid);
   if (!user) {
@@ -86,11 +90,13 @@ router.put('/:externalMovieId/comment', requireAuth, async (req, res) => {
     update: {
       title,
       releaseYear: releaseYear ?? null,
+      apiRating: apiRating ?? null,
     },
     create: {
       externalMovieId,
       title,
       releaseYear: releaseYear ?? null,
+      apiRating: apiRating ?? null,
     },
   });
 

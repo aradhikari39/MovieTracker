@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import useUser from '../useUser.js';
 import { getRatings } from '../movieApi.js';
 
+const cellStyle = {
+  textAlign: 'left',
+  padding: '12px',
+};
+
 export default function MyRatingsPage() {
   const { user, isLoading } = useUser();
   const [ratings, setRatings] = useState([]);
@@ -32,12 +37,16 @@ export default function MyRatingsPage() {
   }, [user, isLoading]);
 
   if (isLoading || pageLoading) {
-    return <div><h1>Loading ratings...</h1></div>;
+    return (
+      <div style={{ padding: '24px' }}>
+        <h1>Loading ratings...</h1>
+      </div>
+    );
   }
 
   if (!user) {
     return (
-      <div>
+      <div style={{ padding: '24px' }}>
         <h1>My Ratings</h1>
         <p>Please log in first.</p>
       </div>
@@ -45,7 +54,7 @@ export default function MyRatingsPage() {
   }
 
   return (
-    <div>
+    <div style={{ padding: '24px' }}>
       <h1>My Ratings</h1>
 
       {error && <p>{error}</p>}
@@ -53,20 +62,41 @@ export default function MyRatingsPage() {
       {ratings.length === 0 ? (
         <p>No ratings yet.</p>
       ) : (
-        ratings.map((item) => (
-          <div
-            key={item.id}
+        <div style={{ overflowX: 'auto', marginTop: '20px' }}>
+          <table
             style={{
-              border: '1px solid #555',
-              marginTop: '16px',
-              padding: '16px',
+              width: '100%',
+              borderCollapse: 'collapse',
+              background: '#181818',
+              border: '1px solid #333',
             }}
           >
-            <h2>{item.movie.title}</h2>
-            <p>Release Year: {item.movie.releaseYear ?? 'Unknown'}</p>
-            <p>My Rating: {item.score}/10</p>
-          </div>
-        ))
+            <thead>
+              <tr style={{ background: '#222' }}>
+                <th style={cellStyle}>Order</th>
+                <th style={cellStyle}>Movie</th>
+                <th style={cellStyle}>Release Year</th>
+                <th style={cellStyle}>TMDB Rating</th>
+                <th style={cellStyle}>My Rating</th>
+                <th style={cellStyle}>First Rated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ratings.map((item, index) => (
+                <tr key={item.id} style={{ borderTop: '1px solid #333' }}>
+                  <td style={cellStyle}>{index + 1}</td>
+                  <td style={cellStyle}>{item.movie.title}</td>
+                  <td style={cellStyle}>{item.movie.releaseYear ?? 'Unknown'}</td>
+                  <td style={cellStyle}>{item.movie.apiRating ?? 'N/A'}</td>
+                  <td style={cellStyle}>{item.score}/10</td>
+                  <td style={cellStyle}>
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

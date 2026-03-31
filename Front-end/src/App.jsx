@@ -5,12 +5,17 @@ import {
 
 import Layout from './Layout.jsx';
 import HomePage from './pages/HomePage.jsx';
-import SearchPage from './pages/SearcgPage.jsx';
+import SearchPage from './pages/SearchPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import CreateAccountPage from './pages/CreateAccountPage.jsx';
 import MyWatchlistsPage from './pages/MyWatchlistsPage.jsx';
 import MyRatingsPage from './pages/MyRatingsPage.jsx';
 import MovieTesterPage from './pages/MovieTesterPage.jsx';
+import MovieDetailsPage from './pages/MovieDetailsPage.jsx';
+import PollsPage from './pages/PollsPage.jsx';
+import FeaturesPage from './pages/FeaturesPage.jsx';
+
+
 
 const router = createBrowserRouter([
   {
@@ -45,6 +50,20 @@ const router = createBrowserRouter([
         path: 'search',
         element: <SearchPage />,
       },
+      {
+        path: 'movies/:movieId',
+        element: <MovieDetailsPage />,
+      },
+      {
+        path: 'polls',
+        element: <PollsPage />,
+      },
+      {
+        path: 'features',
+        element: <FeaturesPage />,
+      },
+
+
     ],
   },
 ]);

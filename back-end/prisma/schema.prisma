@@ -40,13 +40,16 @@ model Movie {
   externalMovieId Int               @unique
   title           String
   releaseYear     Int?
+  apiRating       Float?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
   watchlistMovies WatchlistMovie[]
   ratings         Rating[]
   comments        PersonalComment[]
-  userStatuses    UserMovieStatus[]
+  userStatuses    UserMovieStatus[]  
+
+
 }
 
 model Watchlist {

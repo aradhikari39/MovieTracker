@@ -32,3 +32,20 @@ export async function createWatchlist(token, name) {
 
   return response.json();
 }
+export async function addMovieToWatchlist(token, watchlistId, movieData) {
+  const response = await fetch(`${API_BASE_URL}/watchlists/${watchlistId}/movies`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(movieData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.error || 'Failed to add movie to watchlist');
+  }
+
+  return response.json();
+}

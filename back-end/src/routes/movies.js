@@ -12,7 +12,8 @@ async function getCurrentUser(firebaseUid) {
 
 router.put('/:externalMovieId/status', requireAuth, async (req, res) => {
   const externalMovieId = Number(req.params.externalMovieId);
-  const { status, title, releaseYear } = req.body;
+  const { status, title, releaseYear, apiRating } = req.body;
+
 
   if (!['NOT_WATCHED', 'WATCHING', 'WATCHED'].includes(status)) {
     return res.status(400).json({ error: 'Invalid status' });
@@ -28,11 +29,13 @@ router.put('/:externalMovieId/status', requireAuth, async (req, res) => {
     update: {
       title,
       releaseYear: releaseYear ?? null,
+      apiRating: apiRating ?? null,
     },
     create: {
       externalMovieId,
       title,
       releaseYear: releaseYear ?? null,
+      apiRating: apiRating ?? null,
     },
   });
 
