@@ -49,10 +49,10 @@ export default function SearchPage() {
   }, [searchText]);
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="page-shell">
       <div style={{ maxWidth: '900px', marginBottom: '30px' }}>
-        <h1 style={{ fontSize: '36px', marginBottom: '12px' }}>Search Movies</h1>
-        <p style={{ color: '#bbb', marginBottom: '20px' }}>
+        <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)', marginBottom: '12px' }}>Search Movies</h1>
+        <p style={{ marginBottom: '20px' }}>
           Search for any movie and open its details page to rate it, comment on it,
           and add it to your watchlists.
         </p>
@@ -62,17 +62,8 @@ export default function SearchPage() {
           placeholder="Search any movie..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{
-            width: '100%',
-            maxWidth: '700px',
-            padding: '16px 18px',
-            fontSize: '17px',
-            borderRadius: '14px',
-            border: '1px solid #555',
-            background: '#1b1b1b',
-            color: 'white',
-          }}
-        />
+            style={{ maxWidth: '700px', fontSize: '17px' }}
+          />
       </div>
 
       {error && <p>{error}</p>}
@@ -95,13 +86,10 @@ export default function SearchPage() {
               style={{
                 textAlign: 'left',
                 padding: 0,
-                background: '#181818',
-                color: 'white',
-                border: '1px solid #333',
-                borderRadius: '16px',
                 overflow: 'hidden',
                 cursor: 'pointer',
               }}
+              className="movie-card"
             >
               <div
                 style={{

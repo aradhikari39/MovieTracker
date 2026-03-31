@@ -6,9 +6,8 @@ export default function PollsPage() {
   const { user, isLoading } = useUser();
   const [polls, setPolls] = useState([]);
   const [question, setQuestion] = useState('');
-  const [optionOne, setOptionOne] = useState('');
-  const [optionTwo, setOptionTwo] = useState('');
-  const [optionThree, setOptionThree] = useState('');
+  const [options, setOptions] = useState(['', '']);
+  const [showCreatePoll, setShowCreatePoll] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [pageLoading, setPageLoading] = useState(true);
@@ -29,17 +28,31 @@ export default function PollsPage() {
     loadPolls();
   }, []);
 
+  function handleOptionChange(index, value) {
+    setOptions((current) =>
+      current.map((option, i) => (i === index ? value : option))
+    );
+  }
+
+  function handleAddOption() {
+    if (options.length >= 4) return;
+    setOptions((current) => [...current, '']);
+  }
+
+  function handleRemoveOption(index) {
+    if (options.length <= 2) return;
+    setOptions((current) => current.filter((_, i) => i !== index));
+  }
+
   async function handleCreatePoll() {
     if (!user) {
       setError('Please log in to create a poll');
       return;
     }
 
-    const options = [optionOne, optionTwo, optionThree].filter((option) =>
-      option.trim()
-    );
+    const cleanedOptions = options.map((option) => option.trim()).filter(Boolean);
 
-    if (!question.trim() || options.length < 2) {
+    if (!question.trim() || cleanedOptions.length < 2) {
       setError('Please enter a question and at least 2 options');
       return;
     }
@@ -52,13 +65,12 @@ export default function PollsPage() {
 
       await createPoll(token, {
         question,
-        options,
+        options: cleanedOptions,
       });
 
       setQuestion('');
-      setOptionOne('');
-      setOptionTwo('');
-      setOptionThree('');
+      setOptions(['', '']);
+      setShowCreatePoll(false);
       setMessage('Poll created successfully');
 
       await loadPolls();
@@ -97,57 +109,11 @@ export default function PollsPage() {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '900px' }}>
-      <h1>User Polls</h1>
+    <div className="page-shell" style={{ maxWidth: '900px' }}>
+      <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)' }}>User Polls</h1>
 
       {error && <p>{error}</p>}
       {message && <p>{message}</p>}
-
-      <div
-        style={{
-          marginTop: '24px',
-          padding: '20px',
-          border: '1px solid #333',
-          borderRadius: '12px',
-          background: '#181818',
-        }}
-      >
-        <h2>Create a Poll</h2>
-
-        <input
-          type="text"
-          placeholder="Poll question"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          style={{ width: '100%', padding: '12px', marginBottom: '12px' }}
-        />
-
-        <input
-          type="text"
-          placeholder="Option 1"
-          value={optionOne}
-          onChange={(e) => setOptionOne(e.target.value)}
-          style={{ width: '100%', padding: '12px', marginBottom: '12px' }}
-        />
-
-        <input
-          type="text"
-          placeholder="Option 2"
-          value={optionTwo}
-          onChange={(e) => setOptionTwo(e.target.value)}
-          style={{ width: '100%', padding: '12px', marginBottom: '12px' }}
-        />
-
-        <input
-          type="text"
-          placeholder="Option 3 (optional)"
-          value={optionThree}
-          onChange={(e) => setOptionThree(e.target.value)}
-          style={{ width: '100%', padding: '12px', marginBottom: '12px' }}
-        />
-
-        <button onClick={handleCreatePoll}>Create Poll</button>
-      </div>
 
       <div style={{ marginTop: '30px' }}>
         {polls.length === 0 ? (
@@ -159,10 +125,8 @@ export default function PollsPage() {
               style={{
                 marginBottom: '20px',
                 padding: '20px',
-                border: '1px solid #333',
-                borderRadius: '12px',
-                background: '#181818',
               }}
+              className="poll-card"
             >
               <h2>
                 #{index + 1} {poll.question}
@@ -195,6 +159,63 @@ export default function PollsPage() {
               </div>
             </div>
           ))
+        )}
+      </div>
+
+      <div style={{ marginTop: '40px' }}>
+        <button onClick={() => setShowCreatePoll((current) => !current)}>
+          {showCreatePoll ? 'Close Poll Creator' : 'Create New Poll'}
+        </button>
+
+        {showCreatePoll && (
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '20px',
+            }}
+            className="poll-card"
+          >
+            <h2>Create a New Poll</h2>
+
+            <input
+              type="text"
+              placeholder="Poll question"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              style={{ width: '100%', padding: '12px', marginBottom: '12px' }}
+            />
+
+            {options.map((option, index) => (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  gap: '10px',
+                  alignItems: 'center',
+                  marginBottom: '12px',
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder={`Option ${index + 1}`}
+                  value={option}
+                  onChange={(e) => handleOptionChange(index, e.target.value)}
+                  style={{ flex: 1, padding: '12px' }}
+                />
+
+                {options.length > 2 && (
+                  <button onClick={() => handleRemoveOption(index)}>Remove</button>
+                )}
+              </div>
+            ))}
+
+            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+              {options.length < 4 && (
+                <button onClick={handleAddOption}>Add Option</button>
+              )}
+              <button onClick={handleCreatePoll}>Create Poll</button>
+            </div>
+          </div>
         )}
       </div>
     </div>

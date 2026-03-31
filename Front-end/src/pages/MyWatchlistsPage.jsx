@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useUser from '../useUser.js';
 import { createWatchlist, getWatchlists } from '../watchlistApi.js';
-import { useNavigate } from 'react-router-dom';
-
 
 function getBorderColor(borderStatus) {
   if (borderStatus === 'GREEN') return '#22c55e';
@@ -13,11 +12,12 @@ function getBorderColor(borderStatus) {
 export default function MyWatchlistsPage() {
   const { user, isLoading } = useUser();
   const navigate = useNavigate();
+
   const [watchlists, setWatchlists] = useState([]);
   const [newWatchlistName, setNewWatchlistName] = useState('');
+  const [showCreateBox, setShowCreateBox] = useState(false);
   const [error, setError] = useState('');
   const [pageLoading, setPageLoading] = useState(true);
-  
 
   useEffect(() => {
     async function loadWatchlists() {
@@ -66,6 +66,7 @@ export default function MyWatchlistsPage() {
       ]);
 
       setNewWatchlistName('');
+      setShowCreateBox(false);
     } catch (e) {
       setError(e.message);
     }
@@ -89,15 +90,18 @@ export default function MyWatchlistsPage() {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1>My Watchlists</h1>
+    <div className="page-shell">
+      <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)', marginBottom: '8px' }}>My Watchlists</h1>
+      <p style={{ marginBottom: '20px', maxWidth: '720px' }}>
+        Your shelves for every mood, marathon, and obsession. Click any movie to jump back into its details.
+      </p>
 
       {error && <p>{error}</p>}
 
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
           gap: '20px',
           alignItems: 'stretch',
           marginTop: '24px',
@@ -108,14 +112,13 @@ export default function MyWatchlistsPage() {
             key={watchlist.id}
             style={{
               border: `4px solid ${getBorderColor(watchlist.borderStatus)}`,
-              borderRadius: '16px',
               padding: '18px',
               minHeight: '360px',
-              background: '#181818',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
             }}
+            className="watchlist-card"
           >
             <div>
               <h2 style={{ marginTop: 0 }}>{watchlist.name}</h2>
@@ -130,24 +133,23 @@ export default function MyWatchlistsPage() {
                       onClick={() => navigate(`/movies/${item.movie.externalMovieId}`)}
                       style={{
                         width: '100%',
-                        padding: '10px 0',
-                        borderBottom: '1px solid #333',
+                        padding: '12px 0',
+                        borderBottom: '1px dashed rgba(29, 36, 48, 0.12)',
                         background: 'transparent',
-                        color: 'white',
+                        color: '#1d2430',
                         borderLeft: 'none',
                         borderRight: 'none',
                         borderTop: 'none',
                         textAlign: 'left',
                         cursor: 'pointer',
                       }}
-                    >
-                      <strong>{item.movie.title}</strong>
-                      <div style={{ fontSize: '14px', color: '#bbb' }}>
+                      >
+                        <strong style={{ fontSize: '1rem' }}>{item.movie.title}</strong>
+                      <div style={{ fontSize: '14px', color: '#606774' }}>
                         {item.movie.releaseYear ?? 'Unknown year'}
                       </div>
                     </button>
                   ))}
-
                 </div>
               )}
             </div>
@@ -161,34 +163,51 @@ export default function MyWatchlistsPage() {
           </div>
         ))}
 
-        <div
-          style={{
-            border: '2px dashed #666',
-            borderRadius: '16px',
-            padding: '18px',
-            minHeight: '360px',
-            background: '#111',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
-          <h2 style={{ textAlign: 'center' }}>+ Add More Watchlist</h2>
-
-          <input
-            placeholder="New watchlist name"
-            value={newWatchlistName}
-            onChange={(e) => setNewWatchlistName(e.target.value)}
+        {!showCreateBox ? (
+          <button
+            onClick={() => setShowCreateBox(true)}
+            style={{ minHeight: '360px', fontSize: '64px', cursor: 'pointer' }}
+            className="watchlist-card"
+          >
+            <span style={{ color: '#194e57' }}>+</span>
+          </button>
+        ) : (
+          <div
             style={{
-              padding: '12px',
-              marginTop: '16px',
-              marginBottom: '12px',
-              fontSize: '16px',
+              padding: '18px',
+              minHeight: '360px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
             }}
-          />
+            className="watchlist-card"
+          >
+            <h2 style={{ textAlign: 'center' }}>Create Watchlist</h2>
 
-          <button onClick={handleCreateWatchlist}>Create Watchlist</button>
-        </div>
+            <input
+              placeholder="New watchlist name"
+              value={newWatchlistName}
+              onChange={(e) => setNewWatchlistName(e.target.value)}
+              style={{
+                padding: '12px',
+                marginTop: '16px',
+                marginBottom: '12px',
+                fontSize: '16px',
+              }}
+            />
+
+            <button onClick={handleCreateWatchlist}>Create</button>
+            <button
+              onClick={() => {
+                setShowCreateBox(false);
+                setNewWatchlistName('');
+              }}
+              style={{ marginTop: '10px' }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

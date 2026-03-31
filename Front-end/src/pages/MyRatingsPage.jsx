@@ -58,8 +58,8 @@ export default function MyRatingsPage() {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1>My Ratings</h1>
+    <div className="page-shell">
+      <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)' }}>My Ratings</h1>
 
       {error && <p>{error}</p>}
 
@@ -71,9 +71,8 @@ export default function MyRatingsPage() {
             style={{
               width: '100%',
               borderCollapse: 'collapse',
-              background: '#181818',
-              border: '1px solid #333',
             }}
+            className="ratings-table"
           >
             <thead>
               <tr style={{ background: '#222' }}>

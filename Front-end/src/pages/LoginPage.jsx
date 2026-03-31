@@ -29,8 +29,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1>Log In</h1>
+    <div className="page-shell" style={{ display: 'flex', justifyContent: 'center', paddingTop: '56px' }}>
+      <div className="panel" style={{ width: '100%', maxWidth: '520px', padding: '28px' }}>
+      <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 2.6rem)' }}>Log In</h1>
 
       {error && <p>{error}</p>}
 
@@ -56,6 +57,7 @@ export default function LoginPage() {
       <p>
         <Link to="/create-account">Don't have an account? Create one here</Link>
       </p>
+      </div>
     </div>
   );
 }

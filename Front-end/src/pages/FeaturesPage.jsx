@@ -13,8 +13,8 @@ export default function FeaturesPage() {
     const navigate = useNavigate();
 
     return (
-        <div style={{ padding: '24px' }}>
-            <h1>Features</h1>
+        <div className="page-shell">
+            <h1 className="page-title" style={{ fontSize: 'clamp(2rem, 3vw, 3rem)' }}>Features</h1>
             <p>Only User Polls is active for now. Other features will come later.</p>
 
             <div
@@ -33,13 +33,12 @@ export default function FeaturesPage() {
                         style={{
                             padding: '24px',
                             minHeight: '140px',
-                            borderRadius: '14px',
-                            border: '1px solid #444',
                             background: feature.clickable ? '#1b1b1b' : '#111',
                             color: feature.clickable ? 'white' : '#777',
                             cursor: feature.clickable ? 'pointer' : 'not-allowed',
                             textAlign: 'left',
                         }}
+                        className="feature-card"
                     >
                         <h2 style={{ marginTop: 0 }}>{feature.title}</h2>
                         <p>

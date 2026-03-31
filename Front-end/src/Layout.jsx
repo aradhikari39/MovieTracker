@@ -3,11 +3,11 @@ import NavBar from './NavBar.jsx';
 
 export default function Layout() {
   return (
-    <>
+    <div className="app-shell">
       <NavBar />
-      <main>
+      <main className="app-main">
         <Outlet />
       </main>
-    </>
+    </div>
   );
 }

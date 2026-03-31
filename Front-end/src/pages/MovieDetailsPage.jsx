@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useUser from '../useUser.js';
 import {
@@ -12,12 +12,31 @@ import {
   addMovieToWatchlist,
   createWatchlist,
   getWatchlists,
+  removeMovieFromWatchlist,
 } from '../watchlistApi.js';
 
 function getPosterUrl(posterPath) {
   if (!posterPath) return null;
   return `https://image.tmdb.org/t/p/w500${posterPath}`;
 }
+
+function getStatusStyle(status) {
+  if (status === 'WATCHED') {
+    return { background: '#14532d', border: '1px solid #22c55e', label: 'Watched' };
+  }
+
+  if (status === 'WATCHING') {
+    return { background: '#713f12', border: '1px solid #eab308', label: 'Watching' };
+  }
+
+  return { background: '#7f1d1d', border: '1px solid #ef4444', label: 'Not Watched' };
+}
+
+const statusCycle = {
+  NOT_WATCHED: 'WATCHING',
+  WATCHING: 'WATCHED',
+  WATCHED: 'NOT_WATCHED',
+};
 
 export default function MovieDetailsPage() {
   const { movieId } = useParams();
@@ -26,6 +45,7 @@ export default function MovieDetailsPage() {
   const [movie, setMovie] = useState(null);
   const [status, setStatus] = useState('NOT_WATCHED');
   const [rating, setRating] = useState('');
+  const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
   const [watchlists, setWatchlists] = useState([]);
   const [allWatchlists, setAllWatchlists] = useState([]);
@@ -33,6 +53,16 @@ export default function MovieDetailsPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [showCommentEditor, setShowCommentEditor] = useState(false);
+  const [showWatchlistPanel, setShowWatchlistPanel] = useState(false);
+
+  const posterUrl = movie?.poster_path ? getPosterUrl(movie.poster_path) : null;
+  const statusStyle = getStatusStyle(status);
+
+  const selectedWatchlistIds = useMemo(
+    () => new Set(watchlists.map((watchlist) => watchlist.id)),
+    [watchlists]
+  );
 
   useEffect(() => {
     async function loadPage() {
@@ -59,9 +89,7 @@ export default function MovieDetailsPage() {
             setComment(personalData.comment.content);
           }
 
-          if (personalData?.watchlists) {
-            setWatchlists(personalData.watchlists);
-          }
+          setWatchlists(personalData?.watchlists || []);
 
           const fullWatchlists = await getWatchlists(token);
           setAllWatchlists(fullWatchlists);
@@ -78,8 +106,18 @@ export default function MovieDetailsPage() {
     }
   }, [movieId, user, isLoading]);
 
-  async function handleSaveStatus() {
+  async function refreshWatchlists(token) {
+    const personalData = await getMyMovieData(token, movieId);
+    setWatchlists(personalData?.watchlists || []);
+
+    const fullWatchlists = await getWatchlists(token);
+    setAllWatchlists(fullWatchlists);
+  }
+
+  async function handleCycleStatus() {
     if (!user || !movie) return;
+
+    const nextStatus = statusCycle[status];
 
     try {
       setError('');
@@ -91,21 +129,23 @@ export default function MovieDetailsPage() {
         title: movie.title,
         releaseYear: movie.release_date ? Number(movie.release_date.slice(0, 4)) : null,
         apiRating: movie.vote_average ?? null,
-        status,
+        status: nextStatus,
       });
 
-      setMessage('Watch status saved');
+      setStatus(nextStatus);
+      setMessage('Watch status updated');
     } catch (e) {
       setError(e.message);
     }
   }
 
-  async function handleSaveRating() {
+  async function handleSetRating(score) {
     if (!user || !movie) return;
 
     try {
       setError('');
       setMessage('');
+      setRating(String(score));
 
       const token = await user.getIdToken();
 
@@ -113,7 +153,7 @@ export default function MovieDetailsPage() {
         title: movie.title,
         releaseYear: movie.release_date ? Number(movie.release_date.slice(0, 4)) : null,
         apiRating: movie.vote_average ?? null,
-        score: Number(rating),
+        score,
       });
 
       setMessage('Rating saved');
@@ -138,13 +178,14 @@ export default function MovieDetailsPage() {
         content: comment,
       });
 
+      setShowCommentEditor(false);
       setMessage('Comment saved');
     } catch (e) {
       setError(e.message);
     }
   }
 
-  async function handleAddToWatchlist(watchlistId) {
+  async function handleToggleWatchlist(watchlistId) {
     if (!user || !movie) return;
 
     try {
@@ -152,29 +193,29 @@ export default function MovieDetailsPage() {
       setMessage('');
 
       const token = await user.getIdToken();
+      const alreadyAdded = selectedWatchlistIds.has(watchlistId);
 
-      await addMovieToWatchlist(token, watchlistId, {
-        externalMovieId: Number(movieId),
-        title: movie.title,
-        releaseYear: movie.release_date ? Number(movie.release_date.slice(0, 4)) : null,
-        apiRating: movie.vote_average ?? null,
-      });
+      if (alreadyAdded) {
+        await removeMovieFromWatchlist(token, watchlistId, Number(movieId));
+        setMessage('Movie removed from watchlist');
+      } else {
+        await addMovieToWatchlist(token, watchlistId, {
+          externalMovieId: Number(movieId),
+          title: movie.title,
+          releaseYear: movie.release_date ? Number(movie.release_date.slice(0, 4)) : null,
+          apiRating: movie.vote_average ?? null,
+        });
+        setMessage('Movie added to watchlist');
+      }
 
-      const personalData = await getMyMovieData(token, movieId);
-      setWatchlists(personalData.watchlists || []);
-
-      const fullWatchlists = await getWatchlists(token);
-      setAllWatchlists(fullWatchlists);
-
-      setMessage('Movie added to watchlist');
+      await refreshWatchlists(token);
     } catch (e) {
       setError(e.message);
     }
   }
 
-  async function handleCreateAndAddWatchlist() {
+  async function handleCreateWatchlist() {
     if (!user || !movie) return;
-
     if (!newWatchlistName.trim()) {
       setError('Please enter a watchlist name');
       return;
@@ -185,7 +226,6 @@ export default function MovieDetailsPage() {
       setMessage('');
 
       const token = await user.getIdToken();
-
       const createdWatchlist = await createWatchlist(token, newWatchlistName);
 
       await addMovieToWatchlist(token, createdWatchlist.id, {
@@ -195,14 +235,10 @@ export default function MovieDetailsPage() {
         apiRating: movie.vote_average ?? null,
       });
 
-      const personalData = await getMyMovieData(token, movieId);
-      setWatchlists(personalData.watchlists || []);
-
-      const fullWatchlists = await getWatchlists(token);
-      setAllWatchlists(fullWatchlists);
-
       setNewWatchlistName('');
-      setMessage('New watchlist created and movie added');
+      setMessage('Watchlist created and movie saved');
+
+      await refreshWatchlists(token);
     } catch (e) {
       setError(e.message);
     }
@@ -234,15 +270,15 @@ export default function MovieDetailsPage() {
     );
   }
 
-  const posterUrl = movie.poster_path ? getPosterUrl(movie.poster_path) : null;
+  const activeStarCount = hoveredRating || Number(rating) || 0;
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1000px' }}>
+    <div className="page-shell" style={{ maxWidth: '1100px' }}>
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '280px 1fr',
-          gap: '24px',
+          gridTemplateColumns: '300px 1fr',
+          gap: '28px',
           alignItems: 'start',
         }}
       >
@@ -253,15 +289,15 @@ export default function MovieDetailsPage() {
               alt={movie.title}
               style={{
                 width: '100%',
-                borderRadius: '16px',
+                borderRadius: '18px',
                 border: '1px solid #333',
               }}
             />
           ) : (
             <div
               style={{
-                height: '420px',
-                borderRadius: '16px',
+                height: '450px',
+                borderRadius: '18px',
                 border: '1px solid #333',
                 background: '#111',
                 display: 'flex',
@@ -285,94 +321,199 @@ export default function MovieDetailsPage() {
           {message && <p>{message}</p>}
 
           {!user ? (
-            <p>Please log in to save your rating, comment, and watch status.</p>
+            <p>Please log in to use private tracking features.</p>
           ) : (
             <>
-              <div style={{ marginTop: '24px' }}>
-                <h2>My Watch Status</h2>
-                <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                  <option value="NOT_WATCHED">Not Watched</option>
-                  <option value="WATCHING">Watching</option>
-                  <option value="WATCHED">Watched</option>
-                </select>
-                <button onClick={handleSaveStatus} style={{ marginLeft: '12px' }}>
-                  Save Status
-                </button>
-              </div>
-
-              <div style={{ marginTop: '24px' }}>
-                <h2>My Rating</h2>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  placeholder="Rate 1 to 10"
-                  value={rating}
-                  onChange={(e) => setRating(e.target.value)}
-                />
-                <button onClick={handleSaveRating} style={{ marginLeft: '12px' }}>
-                  Save Rating
-                </button>
-              </div>
-
-              <div style={{ marginTop: '24px' }}>
-                <h2>My Private Comment</h2>
-                <textarea
-                  rows="6"
-                  cols="60"
-                  placeholder="Write your private comment here..."
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                />
-                <br />
-                <button onClick={handleSaveComment} style={{ marginTop: '12px' }}>
-                  Save Comment
-                </button>
-              </div>
-
-              <div style={{ marginTop: '24px' }}>
-                <h2>Already in Watchlists</h2>
-                {watchlists.length === 0 ? (
-                  <p>This movie is not in any watchlist yet.</p>
-                ) : (
-                  watchlists.map((watchlist) => (
-                    <p key={watchlist.id}>{watchlist.name}</p>
-                  ))
-                )}
-              </div>
-
-              <div style={{ marginTop: '24px' }}>
-                <h2>Add to Existing Watchlist</h2>
-                {allWatchlists.length === 0 ? (
-                  <p>No watchlists available yet.</p>
-                ) : (
-                  allWatchlists.map((watchlist) => (
-                    <button
-                      key={watchlist.id}
-                      onClick={() => handleAddToWatchlist(watchlist.id)}
-                      style={{ marginRight: '10px', marginBottom: '10px' }}
-                    >
-                      {watchlist.name}
-                    </button>
-                  ))
-                )}
-              </div>
-
-              <div style={{ marginTop: '24px' }}>
-                <h2>Create New Watchlist and Add Movie</h2>
-                <input
-                  type="text"
-                  placeholder="New watchlist name"
-                  value={newWatchlistName}
-                  onChange={(e) => setNewWatchlistName(e.target.value)}
-                />
+              <div style={{ marginTop: '28px', display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
                 <button
-                  onClick={handleCreateAndAddWatchlist}
-                  style={{ marginLeft: '12px' }}
+                  onClick={handleCycleStatus}
+                  style={{
+                    padding: '14px 18px',
+                    borderRadius: '14px',
+                    cursor: 'pointer',
+                    color: 'white',
+                    ...statusStyle,
+                  }}
                 >
-                  Create and Add
+                  {statusStyle.label}
+                </button>
+
+                <div
+                  style={{
+                    padding: '14px 18px',
+                    borderRadius: '14px',
+                    border: '1px solid #444',
+                    background: '#1b1b1b',
+                    color: 'white',
+                  }}
+                >
+                  <div style={{ marginBottom: '8px' }}>
+                    {rating ? `My Rating: ${rating}/10` : 'Not Rated'}
+                  </div>
+
+                  <div
+                    style={{ display: 'flex', gap: '4px' }}
+                    onMouseLeave={() => setHoveredRating(0)}
+                  >
+                    {Array.from({ length: 10 }, (_, index) => {
+                      const starValue = index + 1;
+                      const active = starValue <= activeStarCount;
+
+                      return (
+                        <button
+                          key={starValue}
+                          onMouseEnter={() => setHoveredRating(starValue)}
+                          onClick={() => handleSetRating(starValue)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: active ? '#facc15' : '#555',
+                            fontSize: '20px',
+                            padding: 0,
+                          }}
+                        >
+                          ★
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowCommentEditor((current) => !current)}
+                  style={{
+                    padding: '14px 18px',
+                    borderRadius: '14px',
+                    border: '1px solid #444',
+                    background: '#1b1b1b',
+                    color: 'white',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {comment ? 'My Note' : 'My Note'}
+                </button>
+
+                <button
+                  onClick={() => setShowWatchlistPanel((current) => !current)}
+                  style={{
+                    padding: '14px 18px',
+                    borderRadius: '14px',
+                    border: '1px solid #444',
+                    background: '#1b1b1b',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontWeight: watchlists.length > 0 ? 'bold' : 'normal',
+                  }}
+                >
+                  Save to Watchlist
                 </button>
               </div>
+
+              <div
+                style={{
+                  marginTop: '20px',
+                  padding: '18px',
+                  border: '1px solid #333',
+                  borderRadius: '14px',
+                  background: '#161616',
+                }}
+              >
+                <h3>My Note</h3>
+                <p>{comment || 'No comment written yet.'}</p>
+
+                {showCommentEditor && (
+                  <div style={{ marginTop: '14px' }}>
+                    <textarea
+                      rows="5"
+                      cols="60"
+                      placeholder="Write your private comment here..."
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                    />
+                    <br />
+                    <button onClick={handleSaveComment} style={{ marginTop: '12px' }}>
+                      Save Comment
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {showWatchlistPanel && (
+                <div
+                  style={{
+                    marginTop: '20px',
+                    padding: '18px',
+                    border: '1px solid #333',
+                    borderRadius: '14px',
+                    background: '#161616',
+                  }}
+                >
+                  <h3>Save to Watchlist</h3>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '10px',
+                      flexWrap: 'wrap',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {allWatchlists.map((watchlist) => {
+                      const active = selectedWatchlistIds.has(watchlist.id);
+
+                      return (
+                        <button
+                          key={watchlist.id}
+                          onClick={() => handleToggleWatchlist(watchlist.id)}
+                          style={{
+                            padding: '10px 14px',
+                            borderRadius: '12px',
+                    border: active ? '1px solid #22c55e' : '1px solid var(--line)',
+                    background: active ? '#123b23' : 'var(--bg-card)',
+                            color: 'white',
+                            fontWeight: active ? 'bold' : 'normal',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {watchlist.name}
+                        </button>
+                      );
+                    })}
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '8px',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="New watchlist"
+                        value={newWatchlistName}
+                        onChange={(e) => setNewWatchlistName(e.target.value)}
+                        style={{ padding: '10px 12px' }}
+                      />
+                      <button
+                        onClick={handleCreateWatchlist}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '12px',
+                          border: '1px solid #444',
+                          background: '#1b1b1b',
+                          color: 'white',
+                          fontSize: '20px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>

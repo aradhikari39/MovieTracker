@@ -164,4 +164,56 @@ router.post('/:watchlistId/movies', requireAuth, async (req, res) => {
   }
 });
 
+router.delete('/:watchlistId/movies/:externalMovieId', requireAuth, async (req, res) => {
+  try {
+    const watchlistId = Number(req.params.watchlistId);
+    const externalMovieId = Number(req.params.externalMovieId);
+
+    if (!Number.isInteger(watchlistId) || !Number.isInteger(externalMovieId)) {
+      return res.status(400).json({ error: 'Invalid ids provided' });
+    }
+
+    const user = await getCurrentUser(req.user.uid);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const watchlist = await prisma.watchlist.findFirst({
+      where: {
+        id: watchlistId,
+        userId: user.id,
+      },
+    });
+
+    if (!watchlist) {
+      return res.status(404).json({ error: 'Watchlist not found' });
+    }
+
+    const movie = await prisma.movie.findUnique({
+      where: {
+        externalMovieId,
+      },
+    });
+
+    if (!movie) {
+      return res.status(404).json({ error: 'Movie not found' });
+    }
+
+    await prisma.watchlistMovie.delete({
+      where: {
+        watchlistId_movieId: {
+          watchlistId: watchlist.id,
+          movieId: movie.id,
+        },
+      },
+    });
+
+    return res.json({ success: true });
+  } catch (error) {
+    return res.status(404).json({ error: 'Movie is not in this watchlist' });
+  }
+});
+
+
 export default router;

@@ -13,29 +13,17 @@ export default function NavBar() {
   }
 
   return (
-    <nav
-      style={{
-        padding: '16px 24px',
-        borderBottom: '1px solid #333',
-        background: '#111',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          gap: '16px',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-        }}
-      >
-        <Link to="/">Home</Link>
-        <Link to="/search">Search</Link>
-        <Link to="/features">Features</Link>
-        <Link to="/polls">Polls</Link>
-        <Link to="/my-watchlists">My Watchlists</Link>
-        <Link to="/my-ratings">My Ratings</Link>
+    <nav className="app-nav">
+      <div className="app-nav__inner">
+        <Link to="/" className="app-brand">MovieTracker</Link>
+        <Link to="/" className="app-nav__link">Home</Link>
+        <Link to="/search" className="app-nav__link">Search</Link>
+        <Link to="/features" className="app-nav__link">Features</Link>
+        <Link to="/polls" className="app-nav__link">Polls</Link>
+        <Link to="/my-watchlists" className="app-nav__link">My Watchlists</Link>
+        <Link to="/my-ratings" className="app-nav__link">My Ratings</Link>
 
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div className="app-nav__auth">
           {isLoading ? (
             <span>Loading...</span>
           ) : user ? (

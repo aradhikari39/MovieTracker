@@ -49,3 +49,21 @@ export async function addMovieToWatchlist(token, watchlistId, movieData) {
 
   return response.json();
 }
+export async function removeMovieFromWatchlist(token, watchlistId, externalMovieId) {
+  const response = await fetch(
+    `${API_BASE_URL}/watchlists/${watchlistId}/movies/${externalMovieId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.error || 'Failed to remove movie from watchlist');
+  }
+
+  return response.json();
+}
