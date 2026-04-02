@@ -28,6 +28,13 @@
   flex-wrap: wrap;
 }
 
+.app-nav__links {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .app-brand {
   font-size: 1.25rem;
   font-weight: 700;
@@ -218,9 +225,32 @@
     width: min(100%, calc(100% - 20px));
   }
 
+  .app-nav__inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .app-brand {
+    margin-right: 0;
+    text-align: center;
+  }
+
+  .app-nav__links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .app-nav__link {
+    text-align: center;
+  }
+
   .app-nav__auth {
     margin-left: 0;
     width: 100%;
+    justify-content: center;
   }
 
   .grid-3 {

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = '/api';
 
 export async function getTmdbMovieDetails(movieId) {
   const response = await fetch(`${API_BASE_URL}/tmdb/movie/${movieId}`);

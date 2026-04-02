@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = '/api';
 
 export async function getPolls() {
   const response = await fetch(`${API_BASE_URL}/polls`);
