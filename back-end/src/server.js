@@ -36,9 +36,16 @@ export function createServer() {
 
   app.use(express.static(path.join(__dirname, '../dist')));
 
-  app.get(/^(?!\/api).+/, (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
+app.use(express.static(path.join(__dirname, '../dist')));
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.includes('.')) {
+    return next();
+  }
+
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
 
   return app;
 }
